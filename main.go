@@ -72,7 +72,7 @@ func search(text string) (string, error) {
 		}
 	}
 	if len(words) == 0 {
-		return "", errors.New("empty dictionary")
+		return "", nil
 	}
 	return words[rand.Int()%len(words)], nil
 }
