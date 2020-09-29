@@ -5,7 +5,7 @@
 ## Usage
 
 ```
-$ echo ユニックス | shiritori
+$ echo ユニックス | siritori
 ```
 
 ## Installation
