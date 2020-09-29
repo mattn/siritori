@@ -20,10 +20,26 @@ import (
 )
 
 var (
-	reWord       = regexp.MustCompile(`^[ァ-ヾ]+$`)
 	reIgnoreText = regexp.MustCompile(`[\[\]「」『』]`)
-	reIgnoreChar = regexp.MustCompile(`[ァィゥェォャュョ]`)
-	reKana       = regexp.MustCompile(`[ァ-タダ-ヶ]`)
+)
+
+var upper = strings.NewReplacer(
+	"ぁ", "あ",
+	"ぃ", "い",
+	"ぅ", "う",
+	"ぇ", "え",
+	"ぉ", "お",
+	"ゃ", "や",
+	"ゅ", "ゆ",
+	"ょ", "よ",
+	"ァ", "ア",
+	"ィ", "イ",
+	"ゥ", "ウ",
+	"ェ", "エ",
+	"ォ", "オ",
+	"ャ", "ヤ",
+	"ュ", "ユ",
+	"ョ", "ヨ",
 )
 
 func isSpace(c []string) bool {
@@ -62,7 +78,6 @@ func search(text string) (string, error) {
 			y = tok.Surface
 		}
 		text = y
-		break
 	}
 
 	if rand.Int()%2 == 0 {
@@ -71,6 +86,7 @@ func search(text string) (string, error) {
 		text = kana2hira(text)
 	}
 
+	text = upper.Replace(strings.ReplaceAll(text, "ー", ""))
 	rs := []rune(text)
 	r := rs[len(rs)-1]
 
