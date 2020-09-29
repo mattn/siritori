@@ -9,23 +9,26 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"regexp"
 	"strings"
+	"time"
 
+	"github.com/ikawaha/kagome/tokenizer"
 	_ "github.com/mattn/siritori/statik"
 
 	"github.com/rakyll/statik/fs"
 )
 
-var upper = strings.NewReplacer(
-	"ぁ", "あ",
-	"ぃ", "い",
-	"ぅ", "う",
-	"ぇ", "え",
-	"ぉ", "お",
-	"ゃ", "や",
-	"ゅ", "ゆ",
-	"ょ", "よ",
+var (
+	reWord       = regexp.MustCompile(`^[ァ-ヾ]+$`)
+	reIgnoreText = regexp.MustCompile(`[\[\]「」『』]`)
+	reIgnoreChar = regexp.MustCompile(`[ァィゥェォャュョ]`)
+	reKana       = regexp.MustCompile(`[ァ-タダ-ヶ]`)
 )
+
+func isSpace(c []string) bool {
+	return c[1] == "空白"
+}
 
 func kana2hira(s string) string {
 	return strings.Map(func(r rune) rune {
@@ -46,8 +49,34 @@ func hira2kana(s string) string {
 }
 
 func search(text string) (string, error) {
+	text = reIgnoreText.ReplaceAllString(text, " ")
+	t := tokenizer.New()
+	tokens := t.Tokenize(text)
+	for _, tok := range tokens {
+		c := tok.Features()
+		if len(c) == 0 || isSpace(c) {
+			continue
+		}
+		y := c[len(c)-1]
+		if y == "*" {
+			y = tok.Surface
+		}
+		text = y
+		break
+	}
+
+	if rand.Int()%2 == 0 {
+		text = hira2kana(text)
+	} else {
+		text = kana2hira(text)
+	}
+
 	rs := []rune(text)
 	r := rs[len(rs)-1]
+
+	if r == 'ん' || r == 'ン' {
+		return "出直して来い", nil
+	}
 
 	statikFS, err := fs.New()
 	if err != nil {
@@ -77,25 +106,13 @@ func search(text string) (string, error) {
 	return words[rand.Int()%len(words)], nil
 }
 
-func shiritori(text string) (string, error) {
-	text = strings.Replace(text, "ー", "", -1)
-	if rand.Int()%2 == 0 {
-		text = hira2kana(text)
-	} else {
-		text = kana2hira(text)
-	}
-	return search(text)
-}
-
 func siritori(text string) (string, error) {
-	rs := []rune(strings.TrimSpace(text))
+	text = strings.TrimSpace(text)
+	rs := []rune(text)
 	if len(rs) == 0 {
 		return "", errors.New("なんやねん")
 	}
-	if rs[len(rs)-1] == 'ん' || rs[len(rs)-1] == 'ン' {
-		return "", errors.New("出直して来い")
-	}
-	s, err := shiritori(text)
+	s, err := search(text)
 	if err != nil {
 		return "", err
 	}
@@ -103,13 +120,15 @@ func siritori(text string) (string, error) {
 		return "", errors.New("わかりません")
 	}
 	rs = []rune(s)
-	if rs[len(rs)-1] == 'ん' || rs[len(rs)-1] == 'ン' {
+	r := rs[len(rs)-1]
+	if r == 'ん' || r == 'ン' {
 		s += "\nあっ..."
 	}
 	return s, nil
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	text := strings.Join(os.Args[1:], "")
 	if len(os.Args) == 1 {
 		b, err := ioutil.ReadAll(os.Stdin)
@@ -119,7 +138,7 @@ func main() {
 		}
 		text = string(b)
 	}
-	result, err := siritori(strings.TrimSpace(text))
+	result, err := siritori(text)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

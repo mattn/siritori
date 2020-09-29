@@ -1,2 +1,4 @@
+github.com/ikawaha/kagome v1.11.2 h1:eCWpLqv5Euqa5JcwkaobUSy6uGM8rwwMw5Su3eRepBI=
+github.com/ikawaha/kagome v1.11.2/go.mod h1:lHwhkGuuWqKWTxeQMppD0EmQAfKbc39QKx9qoWqgo+A=
 github.com/rakyll/statik v0.1.7 h1:OF3QCZUuyPxuGEP7B4ypUa7sB/iHtqOTDYZXGM8KOdQ=
 github.com/rakyll/statik v0.1.7/go.mod h1:AlZONWzMtEnMs7W4e/1LURLiI49pIMmp6V9Unghqrcc=
