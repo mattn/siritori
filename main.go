@@ -110,12 +110,16 @@ func siritori(text string) (string, error) {
 }
 
 func main() {
-	b, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+	text := strings.Join(os.Args[1:], "")
+	if len(os.Args) > 1 {
+		b, err := ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		text = string(b)
 	}
-	result, err := siritori(strings.TrimSpace(string(b)))
+	result, err := siritori(strings.TrimSpace(text))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
