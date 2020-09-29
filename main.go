@@ -111,7 +111,7 @@ func siritori(text string) (string, error) {
 
 func main() {
 	text := strings.Join(os.Args[1:], "")
-	if len(os.Args) > 1 {
+	if len(os.Args) == 1 {
 		b, err := ioutil.ReadAll(os.Stdin)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
